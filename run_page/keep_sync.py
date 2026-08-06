@@ -59,11 +59,26 @@ def login(session, mobile, password):
         "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
     }
     data = {"mobile": mobile, "password": password}
-    r = session.post(LOGIN_API, headers=headers, data=data)
-    if r.ok:
-        token = r.json()["data"]["token"]
-        headers["Authorization"] = f"Bearer {token}"
-        return session, headers
+    try:
+        r = session.post(LOGIN_API, headers=headers, data=data, timeout=30)
+    except requests.RequestException as exc:
+        raise RuntimeError(f"Keep 登录请求失败：{exc}") from exc
+
+    if not r.ok:
+        detail = r.text[:500].replace("\n", " ")
+        raise RuntimeError(
+            f"Keep 登录失败：HTTP {r.status_code}。返回内容：{detail}"
+        )
+
+    try:
+        response_data = r.json()
+        token = response_data["data"]["token"]
+    except (ValueError, KeyError, TypeError) as exc:
+        detail = r.text[:500].replace("\n", " ")
+        raise RuntimeError(f"Keep 登录响应格式异常：{detail}") from exc
+
+    headers["Authorization"] = f"Bearer {token}"
+    return session, headers
 
 
 def get_to_download_runs_ids(session, headers, sport_type):
