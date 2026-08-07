@@ -25,8 +25,8 @@ config.yaml
 route.png
 route.svg
 
-# Garmin GPX files are temporary sync inputs. Their IDs are persisted in
-# run_page/garmin_synced_ids.json and the parsed data is persisted in data.db.
+# Garmin GPX files are temporary sync inputs. Their processed file names are
+# persisted in imported.json and the parsed data is persisted in data.db.
 GPX_OUT/*.gpx
 
 .env

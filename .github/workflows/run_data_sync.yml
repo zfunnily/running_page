@@ -27,8 +27,8 @@ on:
 env:
   # please change to your own config.
   RUN_TYPE: garmin_cn # Garmin China; uses GARMIN_SECRET_STRING_CN
-  ATHLETE: yihong0618
-  TITLE: Yihong0618 Running
+  ATHLETE: qj0913
+  TITLE: Qj0913 Running
   MIN_GRID_DISTANCE: 10 # change min distance here
   TITLE_GRID: Over 10km Runs # also here
 

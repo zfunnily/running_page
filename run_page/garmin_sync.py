@@ -6,7 +6,6 @@ Copy most code from https://github.com/cyberjunky/python-garminconnect
 import argparse
 import asyncio
 import datetime as dt
-import json
 import logging
 import os
 
@@ -21,8 +20,9 @@ from lxml import etree
 import aiofiles
 import garth
 import httpx
-from config import FOLDER_DICT, GARMIN_SYNCED_IDS_FILE, JSON_FILE, SQL_FILE
+from config import FOLDER_DICT, JSON_FILE, SQL_FILE
 from garmin_device_adaptor import process_garmin_data
+from synced_data_file_logger import load_synced_file_list
 from utils import make_activities_file
 
 # logging.basicConfig(level=logging.DEBUG)
@@ -301,11 +301,9 @@ async def download_garmin_data(
                 else:
                     os.remove(os.path.join(folder, file_info.filename))
             os.remove(file_path)
-        return activity_id
     except Exception as e:
         print(f"Failed to download activity {activity_id}: {str(e)}")
         traceback.print_exc()
-        return None
 
 
 async def get_activity_id_list(client, start=0):
@@ -330,26 +328,12 @@ async def gather_with_concurrency(n, tasks):
 
 def get_downloaded_ids(folder):
     ids = {i.split(".")[0] for i in os.listdir(folder) if not i.startswith(".")}
-    if os.path.exists(GARMIN_SYNCED_IDS_FILE):
-        try:
-            with open(GARMIN_SYNCED_IDS_FILE, "r") as f:
-                ids.update(str(activity_id) for activity_id in json.load(f))
-        except (OSError, ValueError, TypeError) as e:
-            print(f"Failed to load {GARMIN_SYNCED_IDS_FILE}: {e}")
+    ids.update(
+        str(file_name).rsplit(".", 1)[0]
+        for file_name in load_synced_file_list()
+        if str(file_name).rsplit(".", 1)[0].isdigit()
+    )
     return list(ids)
-
-
-def save_downloaded_ids(activity_ids):
-    existing_ids = set()
-    if os.path.exists(GARMIN_SYNCED_IDS_FILE):
-        try:
-            with open(GARMIN_SYNCED_IDS_FILE, "r") as f:
-                existing_ids = {str(activity_id) for activity_id in json.load(f)}
-        except (OSError, ValueError, TypeError) as e:
-            print(f"Failed to load {GARMIN_SYNCED_IDS_FILE}: {e}")
-    existing_ids.update(str(activity_id) for activity_id in activity_ids)
-    with open(GARMIN_SYNCED_IDS_FILE, "w") as f:
-        json.dump(sorted(existing_ids), f)
 
 
 def get_garmin_summary_infos(activity_summary, activity_id):
@@ -398,7 +382,7 @@ async def download_new_activities(
             continue
 
     start_time = time.time()
-    downloaded_activity_ids = await gather_with_concurrency(
+    await gather_with_concurrency(
         10,
         [
             download_garmin_data(
@@ -410,13 +394,7 @@ async def download_new_activities(
     print(f"Download finished. Elapsed {time.time()-start_time} seconds")
 
     await client.req.aclose()
-    downloaded_activity_ids = [
-        activity_id for activity_id in downloaded_activity_ids if activity_id is not None
-    ]
-    # Keep IDs from the existing GPX files as well. This also migrates an
-    # existing repository from GPX-based tracking to the lightweight manifest.
-    save_downloaded_ids(downloaded_ids + downloaded_activity_ids)
-    return downloaded_activity_ids, to_generate_garmin_id2title
+    return to_generate_garmin_ids, to_generate_garmin_id2title
 
 
 if __name__ == "__main__":

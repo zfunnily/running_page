@@ -19,7 +19,6 @@ FOLDER_DICT = {
 SQL_FILE = os.path.join(parent, "run_page", "data.db")
 JSON_FILE = os.path.join(parent, "src", "static", "activities.json")
 SYNCED_FILE = os.path.join(parent, "imported.json")
-GARMIN_SYNCED_IDS_FILE = os.path.join(parent, "run_page", "garmin_synced_ids.json")
 
 
 BASE_TIMEZONE = "Asia/Shanghai"
