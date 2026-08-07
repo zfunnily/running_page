@@ -1,0 +1,16 @@
+name: Rebuild blog with running page
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger hugo_blog deployment
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.ACTION_ACCESS_TOKEN }}
+          repository: zfunnily/hugo_blog
+          event-type: running-page-updated

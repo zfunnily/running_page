@@ -2,6 +2,8 @@
  * Color utility functions for theme-aware color adjustments
  */
 
+import { getStoredValue } from '../../../core/storage';
+
 export type Theme = 'light' | 'dark';
 
 /**
@@ -118,14 +120,14 @@ export const hslToRgb = (
 };
 
 /**
- * Gets the current theme from the DOM and localStorage
+ * Gets the current theme from the DOM and optional local storage
  * @returns The current effective theme
  */
 export const getCurrentTheme = (): 'light' | 'dark' => {
   if (typeof window === 'undefined') return 'dark';
 
   const dataTheme = document.documentElement.getAttribute('data-theme');
-  const savedTheme = localStorage.getItem('theme');
+  const savedTheme = getStoredValue('theme');
 
   // Determine current theme based on priority
   if (dataTheme === 'dark' || dataTheme === 'light') {

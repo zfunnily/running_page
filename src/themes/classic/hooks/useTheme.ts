@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
 import { MAP_TILE_STYLE_LIGHT, MAP_TILE_STYLE_DARK } from '../utils/const';
+import { getStoredValue, setStoredValue } from '../../../core/storage';
 
 export type Theme = 'light' | 'dark';
 
@@ -10,7 +11,7 @@ const getCurrentThemeSnapshot = () => {
   if (typeof window === 'undefined') return 'dark';
   return (
     document.documentElement.getAttribute('data-theme') ||
-    localStorage.getItem('theme') ||
+    getStoredValue('theme') ||
     'dark'
   );
 };
@@ -86,7 +87,7 @@ export const useTheme = () => {
   // Initialize theme from localStorage or default to dark
   const [themeState, setThemeState] = useState<Theme>(() => {
     if (typeof window === 'undefined') return 'dark';
-    return (localStorage.getItem('theme') as Theme) || 'dark';
+    return (getStoredValue('theme') as Theme) || 'dark';
   });
 
   /**
@@ -108,7 +109,7 @@ export const useTheme = () => {
 
     // Set attribute and save to localStorage for both themes
     root.setAttribute('data-theme', themeState);
-    localStorage.setItem('theme', themeState);
+    setStoredValue('theme', themeState);
   }, [themeState]);
 
   return {

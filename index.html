@@ -5,19 +5,23 @@
     <script>
       (function () {
         const basePath = '%BASE_URL%';
-        const redirect = sessionStorage.getItem('redirect');
-        if (redirect) {
-          sessionStorage.removeItem('redirect');
-          if (
-            redirect !== basePath + '/' &&
-            redirect !== basePath + '/index.html'
-          ) {
-            window.history.pushState(null, '', redirect);
+        try {
+          const redirect = sessionStorage.getItem('redirect');
+          if (redirect) {
+            sessionStorage.removeItem('redirect');
+            if (
+              redirect !== basePath &&
+              redirect !== basePath + '/index.html'
+            ) {
+              window.history.pushState(null, '', redirect);
+            }
           }
+        } catch {
+          // Session storage may be blocked; this redirect is optional.
         }
       })();
     </script>
-    <link rel="icon" type="image/png" href="%BASE_URL%/images/favicon.png" />
+    <link rel="icon" type="image/png" href="%BASE_URL%images/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Running Page</title>
   </head>

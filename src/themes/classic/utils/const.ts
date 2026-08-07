@@ -1,4 +1,5 @@
 // Constants
+import { getStoredValue } from '../../../core/storage';
 const MAPBOX_TOKEN =
   // For security reasons, please avoid using the default public token provided by Mapbox as much as possible.
   // Instead, manually add a new token and apply URL restrictions.
@@ -188,7 +189,7 @@ export const getRuntimeRunColor = (): string => {
   if (typeof window === 'undefined') return RUN_COLOR_DARK;
 
   const dataTheme = document.documentElement.getAttribute('data-theme');
-  const savedTheme = localStorage.getItem('theme');
+  const savedTheme = getStoredValue('theme');
 
   // Determine current theme (default to dark)
   const isDark =
@@ -204,7 +205,7 @@ export const getRuntimeSingleRunColor = (): string => {
   if (typeof window === 'undefined') return SINGLE_RUN_COLOR_DARK;
 
   const dataTheme = document.documentElement.getAttribute('data-theme');
-  const savedTheme = localStorage.getItem('theme');
+  const savedTheme = getStoredValue('theme');
 
   // Determine current theme (default to dark)
   const isDark =

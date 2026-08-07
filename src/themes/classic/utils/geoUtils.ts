@@ -6,6 +6,7 @@ import type { GeoJsonProperties } from 'geojson';
 import type { RPGeometry } from '../static/run_countries';
 import worldGeoJsonUrl from '../static/world.zh.json?url';
 import { getMapThemeFromCurrentTheme } from '../hooks/useTheme';
+import { getStoredValue } from '../../../core/storage';
 import {
   CYCLING_COLOR,
   getMapTileVendorStyles,
@@ -203,7 +204,7 @@ export const getMapTheme = (): string => {
 
   const dataTheme = document.documentElement.getAttribute('data-theme') as
     'light' | 'dark' | null;
-  const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+  const savedTheme = getStoredValue('theme') as 'light' | 'dark' | null;
 
   if (dataTheme) {
     return getMapThemeFromCurrentTheme(dataTheme);

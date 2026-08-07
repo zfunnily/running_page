@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { messages, type Locale } from '../i18n';
 import { DEFAULT_LOCALE } from '../config';
+import { getStoredValue, setStoredValue } from '../storage';
 
 interface LocaleContextValue {
   locale: Locale;
@@ -17,13 +18,13 @@ const LocaleContext = createContext<LocaleContextValue>({
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(() => {
-    const stored = localStorage.getItem('locale');
+    const stored = getStoredValue('locale');
     return (stored as Locale) || DEFAULT_LOCALE;
   });
 
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
-    localStorage.setItem('locale', l);
+    setStoredValue('locale', l);
   }, []);
 
   const t = useCallback(
