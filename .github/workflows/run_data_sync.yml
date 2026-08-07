@@ -284,9 +284,19 @@ jobs:
         run: |
           git config --local user.email 'action@github.com'
           git config --local user.name 'GitHub Action'
+          git rm -r --cached --ignore-unmatch GPX_OUT
+          touch GPX_OUT/.gitkeep
           git add .
           git commit -m 'update new runs' || echo 'nothing to commit'
           git push || echo 'nothing to push'
+
+      - name: Trigger Hugo blog deployment
+        if: env.SAVE_DATA_IN_GITHUB_CACHE != 'true'
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.ACTION_ACCESS_TOKEN }}
+          repository: zfunnily/hugo_blog
+          event-type: running-page-updated
 
       - name: Set Output
         id: set_output
