@@ -66,9 +66,7 @@ def login(session, mobile, password):
 
     if not r.ok:
         detail = r.text[:500].replace("\n", " ")
-        raise RuntimeError(
-            f"Keep 登录失败：HTTP {r.status_code}。返回内容：{detail}"
-        )
+        raise RuntimeError(f"Keep 登录失败：HTTP {r.status_code}。返回内容：{detail}")
 
     try:
         response_data = r.json()
