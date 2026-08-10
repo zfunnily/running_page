@@ -192,6 +192,11 @@ const intComma = (x = '') => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
+const isBadmintonActivity = (activity: Activity): boolean =>
+  [activity.type, activity.subtype, activity.name].some((value) =>
+    /badminton|羽毛球/i.test(value ?? '')
+  );
+
 const getActivitySport = (act: Activity): string => {
   if (act.type === 'Run') {
     if (act.subtype === 'generic') {
@@ -206,7 +211,7 @@ const getActivitySport = (act: Activity): string => {
     else if (act.subtype === 'treadmill')
       return ACTIVITY_TYPES.RUN_TREADMILL_TITLE;
     else return ACTIVITY_TYPES.RUN_GENERIC_TITLE;
-  } else if (act.type.toLowerCase() === 'badminton') {
+  } else if (isBadmintonActivity(act)) {
     return ACTIVITY_TYPES.BADMINTON_TITLE;
   } else if (act.type === 'hiking') {
     return ACTIVITY_TYPES.HIKING_TITLE;
@@ -238,7 +243,7 @@ const titleForRun = (run: Activity): string => {
   // 3. use time+length if location or type is not available
   const runDistance = run.distance / 1000;
   const runHour = +run.start_date_local.slice(11, 13);
-  const isBadminton = run.type.toLowerCase() === 'badminton';
+  const isBadminton = isBadmintonActivity(run);
   const timeTitles = isBadminton
     ? {
         morning: RUN_TITLES.MORNING_BADMINTON_TITLE,

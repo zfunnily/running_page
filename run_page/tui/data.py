@@ -96,7 +96,11 @@ class Activity:
 
     @property
     def period_label(self) -> str:
-        is_badminton = self.sport_type_normalized.lower() == "badminton"
+        is_badminton = (
+            self.sport_type_normalized.lower() == "badminton"
+            or "badminton" in self.name.lower()
+            or "羽毛球" in self.name
+        )
         suffix = "羽毛球" if is_badminton else "跑步"
         suffix_en = " Badminton" if is_badminton else " Run"
         labels = {
