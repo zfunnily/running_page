@@ -100,7 +100,18 @@ class TrackLoader:
 
         tracks = self._filter_tracks(tracks)
         # filter out tracks with length < min_length
-        return [t for t in tracks if t.length >= self.min_length]
+        return [
+            t
+            for t in tracks
+            if t.length >= self.min_length or self._is_short_badminton(t)
+        ]
+
+    @staticmethod
+    def _is_short_badminton(track):
+        activity_text = " ".join(
+            str(value or "") for value in (track.track_name, track.type, track.subtype)
+        ).lower()
+        return "badminton" in activity_text or "羽毛球" in activity_text
 
     def load_tracks_from_db(self, sql_file, is_grid=False):
         session = init_db(sql_file)

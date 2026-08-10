@@ -244,16 +244,17 @@ class Track:
             for s in t.segments:
                 moving_time += self._calc_moving_time(s.points, 10)
         gpx.simplify()
+        for t in gpx.tracks:
+            if self.track_name is None:
+                self.track_name = t.name
+            if hasattr(t, "type") and t.type:
+                self.type = "Run" if t.type == "running" else t.type
         if self.length == 0:
             self._load_gpx_extensions_data(gpx)
             return
         polyline_container = []
         heart_rate_list = []
         for t in gpx.tracks:
-            if self.track_name is None:
-                self.track_name = t.name
-            if hasattr(t, "type") and t.type:
-                self.type = "Run" if t.type == "running" else t.type
             for s in t.segments:
                 try:
                     extensions = [
