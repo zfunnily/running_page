@@ -57,6 +57,7 @@ distribution = true
 packages = ["run_page"]
 
 [tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
 # The sync adapters intentionally preserve broad compatibility error handling
 # and timezone-naive timestamps from the upstream service payloads.
 ignore = [
@@ -74,6 +75,9 @@ ignore = [
   "SIM102",
   "TRY002",
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"test_*.py" = ["ASYNC230"]
 
 [dependency-groups]
 dev = [
