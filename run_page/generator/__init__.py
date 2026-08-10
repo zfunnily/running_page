@@ -234,6 +234,7 @@ class Generator:
         self.session.commit()
 
     def load(self):
+        self._normalize_badminton_activities()
         # if sub_type is not in the db, just add an empty string to it
         query = self.session.query(Activity).filter(Activity.distance > 0.1)
         if self.only_run:
@@ -279,6 +280,32 @@ class Generator:
         self.session.commit()
 
         return activity_list
+
+    def _normalize_badminton_activities(self):
+        """Keep imported badminton records independent from Garmin's Run type."""
+        changed = False
+        activities = self.session.query(Activity).all()
+        for activity in activities:
+            activity_text = " ".join(
+                str(value or "")
+                for value in (activity.name, activity.type, activity.subtype)
+            ).lower()
+            if "badminton" not in activity_text and "羽毛球" not in activity_text:
+                continue
+            if (
+                activity.elapsed_time is not None
+                and activity.moving_time != activity.elapsed_time
+            ):
+                activity.moving_time = activity.elapsed_time
+                changed = True
+            if activity.average_speed != 0:
+                activity.average_speed = 0
+                changed = True
+            if activity.type != "badminton":
+                activity.type = "badminton"
+                changed = True
+        if changed:
+            self.session.commit()
 
     @staticmethod
     def _fix_indoor_locations(activity_list):
