@@ -359,8 +359,10 @@ async def download_new_activities(
     # because I don't find a para for after time, so I use garmin-id as filename
     # to find new run to generate
     activity_ids = await get_activity_id_list(client)
+    print(f"Garmin API activities: {len(activity_ids)}")
+    print(f"Already downloaded activities: {len(downloaded_ids)}")
     to_generate_garmin_ids = list(set(activity_ids) - set(downloaded_ids))
-    print(f"{len(to_generate_garmin_ids)} new activities to be downloaded")
+    print(f"New activities to download: {len(to_generate_garmin_ids)}")
 
     to_generate_garmin_id2title = {}
     garmin_summary_infos_dict = {}
@@ -425,6 +427,11 @@ if __name__ == "__main__":
         default="gpx",
         help="to download personal documents or ebook",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="redownload all activities returned by Garmin",
+    )
     options = parser.parse_args()
     secret_string = options.secret_string
     auth_domain = "CN" if options.is_cn else "COM"  # Default to COM if not specified
@@ -446,6 +453,9 @@ if __name__ == "__main__":
         downloaded_gpx_ids = get_downloaded_ids(gpx_folder)
         # merge downloaded_ids:list
         downloaded_ids = list(set(downloaded_ids + downloaded_gpx_ids))
+
+    if options.force:
+        downloaded_ids = []
 
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(
