@@ -318,6 +318,7 @@ const sortDateFunc = (a: Activity, b: Activity) => {
 const sortDateFuncReverse = (a: Activity, b: Activity) => sortDateFunc(b, a);
 
 export {
+  isBadmintonActivity,
   titleForShow,
   formatPace,
   scrollToMap,

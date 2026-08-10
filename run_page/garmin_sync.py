@@ -336,17 +336,40 @@ def get_downloaded_ids(folder):
 def get_garmin_summary_infos(activity_summary, activity_id):
     garmin_summary_infos = {}
     try:
-        summary_dto = activity_summary.get("summaryDTO")
+        summary_dto = activity_summary.get("summaryDTO") or {}
+        activity_name = activity_summary.get("activityName", "")
+        activity_type = (activity_summary.get("activityTypeDTO") or {}).get(
+            "typeKey", ""
+        )
+        is_badminton = any(
+            marker in f"{activity_name} {activity_type}".lower()
+            for marker in ("badminton", "羽毛球")
+        )
         garmin_summary_infos["distance"] = summary_dto.get("distance")
         garmin_summary_infos["average_hr"] = summary_dto.get("averageHR")
-        garmin_summary_infos["average_speed"] = summary_dto.get("averageSpeed")
+        garmin_summary_infos["average_speed"] = (
+            0 if is_badminton else summary_dto.get("averageSpeed")
+        )
         start_time = dt.datetime.fromisoformat(summary_dto.get("startTimeGMT"))
-        duration_second = summary_dto.get("duration")
+        elapsed_second = next(
+            (
+                summary_dto.get(key)
+                for key in ("elapsedTime", "elapsedDuration")
+                if summary_dto.get(key) is not None
+            ),
+            activity_summary.get("elapsedTime"),
+        )
+        duration_second = elapsed_second or summary_dto.get("duration") or 0
         end_time = start_time + dt.timedelta(seconds=duration_second)
         garmin_summary_infos["start_time"] = start_time.isoformat()
         garmin_summary_infos["end_time"] = end_time.isoformat()
-        garmin_summary_infos["moving_time"] = summary_dto.get("movingDuration")
-        garmin_summary_infos["elapsed_time"] = summary_dto.get("elapsedDuration")
+        garmin_summary_infos["moving_time"] = (
+            elapsed_second
+            if is_badminton and elapsed_second is not None
+            else summary_dto.get("movingDuration")
+        )
+        garmin_summary_infos["elapsed_time"] = elapsed_second
+        garmin_summary_infos["is_badminton"] = is_badminton
     except Exception as e:
         print(f"Failed to get activity summary {activity_id}: {e!s}")
     return garmin_summary_infos
@@ -366,6 +389,7 @@ async def download_new_activities(
 
     to_generate_garmin_id2title = {}
     garmin_summary_infos_dict = {}
+    badminton_ids = []
     for id in to_generate_garmin_ids:
         try:
             activity_summary = await client.get_activity_summary(id)
@@ -374,19 +398,37 @@ async def download_new_activities(
             garmin_summary_infos_dict[id] = get_garmin_summary_infos(
                 activity_summary, id
             )
+            if garmin_summary_infos_dict[id].get("is_badminton"):
+                badminton_ids.append(id)
         except Exception as e:
             print(f"Failed to get activity summary {id}: {e!s}")
             continue
+    print(f"Badminton activities using detail duration: {len(badminton_ids)}")
 
     start_time = time.time()
-    await gather_with_concurrency(
-        10,
-        [
-            download_garmin_data(
-                client, id, file_type=file_type, summary_infos=garmin_summary_infos_dict
+
+    async def download_batch(activity_ids):
+        if activity_ids:
+            await gather_with_concurrency(
+                10,
+                [
+                    download_garmin_data(
+                        client,
+                        activity_id,
+                        file_type=file_type,
+                        summary_infos=garmin_summary_infos_dict,
+                    )
+                    for activity_id in activity_ids
+                ],
             )
-            for id in to_generate_garmin_ids
-        ],
+
+    await download_batch(badminton_ids)
+    await download_batch(
+        [
+            activity_id
+            for activity_id in to_generate_garmin_ids
+            if activity_id not in badminton_ids
+        ]
     )
     print(f"Download finished. Elapsed {time.time()-start_time} seconds")
 

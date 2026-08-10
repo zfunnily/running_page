@@ -359,6 +359,15 @@ class Track:
             if gpx_extensions.get("elapsed_time") is None
             else datetime.timedelta(seconds=float(gpx_extensions.get("elapsed_time")))
         )
+        if self._is_badminton():
+            self.moving_dict["moving_time"] = self.moving_dict["elapsed_time"]
+            self.moving_dict["average_speed"] = 0
+
+    def _is_badminton(self):
+        activity_text = " ".join(
+            str(value or "") for value in (self.track_name, self.type, self.subtype)
+        ).lower()
+        return "badminton" in activity_text or "羽毛球" in activity_text
 
     def _load_fit_data(self, fit: dict):
         _polylines = []
