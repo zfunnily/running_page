@@ -40,6 +40,11 @@ def _many_activities(count: int = 108) -> list[dict]:
     ]
 
 
+def _write_activities(data_path: str, activities: list[dict]) -> None:
+    with open(data_path, "w") as fh:
+        json.dump(activities, fh)
+
+
 class RunningTUITest(unittest.IsolatedAsyncioTestCase):
     def test_monthly_distances_aggregates_by_month(self) -> None:
         year_stats = YearStats(
@@ -63,14 +68,13 @@ class RunningTUITest(unittest.IsolatedAsyncioTestCase):
 
         with TemporaryDirectory() as tmp:
             data_path = f"{tmp}/activities.json"
-            with open(data_path, "w") as fh:
-                json.dump(
-                    [
-                        _activity(1, "2024-01-01"),
-                        _activity(2, "2026-01-02"),
-                    ],
-                    fh,
-                )
+            _write_activities(
+                data_path,
+                [
+                    _activity(1, "2024-01-01"),
+                    _activity(2, "2026-01-02"),
+                ],
+            )
 
             app = RunningTUI(data_path)
 
@@ -109,14 +113,13 @@ class RunningTUITest(unittest.IsolatedAsyncioTestCase):
 
         with TemporaryDirectory() as tmp:
             data_path = f"{tmp}/activities.json"
-            with open(data_path, "w") as fh:
-                json.dump(
-                    [
-                        _activity(1, "2026-01-01"),
-                        _activity(2, "2026-01-02"),
-                    ],
-                    fh,
-                )
+            _write_activities(
+                data_path,
+                [
+                    _activity(1, "2026-01-01"),
+                    _activity(2, "2026-01-02"),
+                ],
+            )
 
             app = RunningTUI(data_path)
 
@@ -211,14 +214,13 @@ class RunningTUITest(unittest.IsolatedAsyncioTestCase):
 
         with TemporaryDirectory() as tmp:
             data_path = f"{tmp}/activities.json"
-            with open(data_path, "w") as fh:
-                json.dump(
-                    [
-                        _activity(1, "2025-01-01"),
-                        _activity(2, "2026-01-02"),
-                    ],
-                    fh,
-                )
+            _write_activities(
+                data_path,
+                [
+                    _activity(1, "2025-01-01"),
+                    _activity(2, "2026-01-02"),
+                ],
+            )
 
             app = RunningTUI(data_path)
 
@@ -234,15 +236,14 @@ class RunningTUITest(unittest.IsolatedAsyncioTestCase):
 
         with TemporaryDirectory() as tmp:
             data_path = f"{tmp}/activities.json"
-            with open(data_path, "w") as fh:
-                json.dump(
-                    [
-                        _activity(1, "2021-01-01"),
-                        _activity(2, "2022-01-02"),
-                        _activity(3, "2026-01-03"),
-                    ],
-                    fh,
-                )
+            _write_activities(
+                data_path,
+                [
+                    _activity(1, "2021-01-01"),
+                    _activity(2, "2022-01-02"),
+                    _activity(3, "2026-01-03"),
+                ],
+            )
 
             app = RunningTUI(data_path)
 
@@ -258,8 +259,7 @@ class RunningTUITest(unittest.IsolatedAsyncioTestCase):
 
         with TemporaryDirectory() as tmp:
             data_path = f"{tmp}/activities.json"
-            with open(data_path, "w") as fh:
-                json.dump(_many_activities(), fh)
+            _write_activities(data_path, _many_activities())
 
             app = RunningTUI(data_path)
 
@@ -276,8 +276,7 @@ class RunningTUITest(unittest.IsolatedAsyncioTestCase):
 
         with TemporaryDirectory() as tmp:
             data_path = f"{tmp}/activities.json"
-            with open(data_path, "w") as fh:
-                json.dump(_many_activities(), fh)
+            _write_activities(data_path, _many_activities())
 
             app = RunningTUI(data_path)
 
@@ -294,15 +293,14 @@ class RunningTUITest(unittest.IsolatedAsyncioTestCase):
 
         with TemporaryDirectory() as tmp:
             data_path = f"{tmp}/activities.json"
-            with open(data_path, "w") as fh:
-                json.dump(
-                    [
-                        _activity(1, "2024-01-01"),
-                        _activity(2, "2025-01-01"),
-                        _activity(3, "2026-01-01"),
-                    ],
-                    fh,
-                )
+            _write_activities(
+                data_path,
+                [
+                    _activity(1, "2024-01-01"),
+                    _activity(2, "2025-01-01"),
+                    _activity(3, "2026-01-01"),
+                ],
+            )
 
             app = RunningTUI(data_path)
 
