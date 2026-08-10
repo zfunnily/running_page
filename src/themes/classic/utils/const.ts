@@ -69,6 +69,13 @@ const MIDDAY_RUN_TITLE = IS_CHINESE ? '午间跑步' : 'Midday Run';
 const AFTERNOON_RUN_TITLE = IS_CHINESE ? '午后跑步' : 'Afternoon Run';
 const EVENING_RUN_TITLE = IS_CHINESE ? '傍晚跑步' : 'Evening Run';
 const NIGHT_RUN_TITLE = IS_CHINESE ? '夜晚跑步' : 'Night Run';
+const MORNING_BADMINTON_TITLE = IS_CHINESE ? '清晨羽毛球' : 'Morning Badminton';
+const MIDDAY_BADMINTON_TITLE = IS_CHINESE ? '午间羽毛球' : 'Midday Badminton';
+const AFTERNOON_BADMINTON_TITLE = IS_CHINESE
+  ? '午后羽毛球'
+  : 'Afternoon Badminton';
+const EVENING_BADMINTON_TITLE = IS_CHINESE ? '傍晚羽毛球' : 'Evening Badminton';
+const NIGHT_BADMINTON_TITLE = IS_CHINESE ? '夜晚羽毛球' : 'Night Badminton';
 const RUN_GENERIC_TITLE = IS_CHINESE ? '跑步' : 'Run';
 const RUN_TRAIL_TITLE = IS_CHINESE ? '越野跑' : 'Trail Run';
 const RUN_TREADMILL_TITLE = IS_CHINESE ? '跑步机' : 'Treadmill Run';
@@ -77,6 +84,7 @@ const CYCLING_TITLE = IS_CHINESE ? '骑行' : 'Cycling';
 const SKIING_TITLE = IS_CHINESE ? '滑雪' : 'Skiing';
 const WALKING_TITLE = IS_CHINESE ? '步行' : 'Walking';
 const SWIMMING_TITLE = IS_CHINESE ? '游泳' : 'Swimming';
+const BADMINTON_TITLE = IS_CHINESE ? '羽毛球' : 'Badminton';
 const ALL_TITLE = IS_CHINESE ? '所有' : 'All';
 const ACTIVITY_COUNT_TITLE = IS_CHINESE ? '活动次数' : 'Activity Count';
 const MAX_DISTANCE_TITLE = IS_CHINESE ? '最远距离' : 'Max Distance';
@@ -109,6 +117,7 @@ const ACTIVITY_TYPES = {
   SKIING_TITLE,
   WALKING_TITLE,
   SWIMMING_TITLE,
+  BADMINTON_TITLE,
   ALL_TITLE,
 };
 
@@ -120,6 +129,11 @@ const RUN_TITLES = {
   AFTERNOON_RUN_TITLE,
   EVENING_RUN_TITLE,
   NIGHT_RUN_TITLE,
+  MORNING_BADMINTON_TITLE,
+  MIDDAY_BADMINTON_TITLE,
+  AFTERNOON_BADMINTON_TITLE,
+  EVENING_BADMINTON_TITLE,
+  NIGHT_BADMINTON_TITLE,
 };
 const ACTIVITY_TOTAL = {
   ACTIVITY_COUNT_TITLE,

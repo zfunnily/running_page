@@ -39,6 +39,8 @@ SPORT_TYPE_ALIASES: dict[str, str] = {
     "Workout": "Workout",
     "Ski": "Ski",
     "skiing": "Ski",
+    "Badminton": "Badminton",
+    "badminton": "Badminton",
 }
 
 
@@ -94,14 +96,17 @@ class Activity:
 
     @property
     def period_label(self) -> str:
+        is_badminton = self.sport_type_normalized.lower() == "badminton"
+        suffix = "羽毛球" if is_badminton else "跑步"
+        suffix_en = " Badminton" if is_badminton else " Run"
         labels = {
-            "Morning": "清晨跑步",
-            "Midday": "午间跑步",
-            "Afternoon": "午后跑步",
-            "Evening": "傍晚跑步",
-            "Night": "夜晚跑步",
+            "Morning": ("清晨" + suffix, "Morning" + suffix_en),
+            "Midday": ("午间" + suffix, "Midday" + suffix_en),
+            "Afternoon": ("午后" + suffix, "Afternoon" + suffix_en),
+            "Evening": ("傍晚" + suffix, "Evening" + suffix_en),
+            "Night": ("夜晚" + suffix, "Night" + suffix_en),
         }
-        return labels.get(self.period, self.period)
+        return labels.get(self.period, (self.period, self.period))[0]
 
     @property
     def has_route(self) -> bool:

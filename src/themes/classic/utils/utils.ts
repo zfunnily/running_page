@@ -206,6 +206,8 @@ const getActivitySport = (act: Activity): string => {
     else if (act.subtype === 'treadmill')
       return ACTIVITY_TYPES.RUN_TREADMILL_TITLE;
     else return ACTIVITY_TYPES.RUN_GENERIC_TITLE;
+  } else if (act.type.toLowerCase() === 'badminton') {
+    return ACTIVITY_TYPES.BADMINTON_TITLE;
   } else if (act.type === 'hiking') {
     return ACTIVITY_TYPES.HIKING_TITLE;
   } else if (act.type === 'cycling') {
@@ -236,25 +238,41 @@ const titleForRun = (run: Activity): string => {
   // 3. use time+length if location or type is not available
   const runDistance = run.distance / 1000;
   const runHour = +run.start_date_local.slice(11, 13);
-  if (runDistance > 20 && runDistance < 40) {
+  const isBadminton = run.type.toLowerCase() === 'badminton';
+  const timeTitles = isBadminton
+    ? {
+        morning: RUN_TITLES.MORNING_BADMINTON_TITLE,
+        midday: RUN_TITLES.MIDDAY_BADMINTON_TITLE,
+        afternoon: RUN_TITLES.AFTERNOON_BADMINTON_TITLE,
+        evening: RUN_TITLES.EVENING_BADMINTON_TITLE,
+        night: RUN_TITLES.NIGHT_BADMINTON_TITLE,
+      }
+    : {
+        morning: RUN_TITLES.MORNING_RUN_TITLE,
+        midday: RUN_TITLES.MIDDAY_RUN_TITLE,
+        afternoon: RUN_TITLES.AFTERNOON_RUN_TITLE,
+        evening: RUN_TITLES.EVENING_RUN_TITLE,
+        night: RUN_TITLES.NIGHT_RUN_TITLE,
+      };
+  if (!isBadminton && runDistance > 20 && runDistance < 40) {
     return RUN_TITLES.HALF_MARATHON_RUN_TITLE;
   }
-  if (runDistance >= 40) {
+  if (!isBadminton && runDistance >= 40) {
     return RUN_TITLES.FULL_MARATHON_RUN_TITLE;
   }
   if (runHour >= 0 && runHour <= 10) {
-    return RUN_TITLES.MORNING_RUN_TITLE;
+    return timeTitles.morning;
   }
   if (runHour > 10 && runHour <= 14) {
-    return RUN_TITLES.MIDDAY_RUN_TITLE;
+    return timeTitles.midday;
   }
   if (runHour > 14 && runHour <= 18) {
-    return RUN_TITLES.AFTERNOON_RUN_TITLE;
+    return timeTitles.afternoon;
   }
   if (runHour > 18 && runHour <= 21) {
-    return RUN_TITLES.EVENING_RUN_TITLE;
+    return timeTitles.evening;
   }
-  return RUN_TITLES.NIGHT_RUN_TITLE;
+  return timeTitles.night;
 };
 
 const filterYearRuns = (run: Activity, year: string) => {
