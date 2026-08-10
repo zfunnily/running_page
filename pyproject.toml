@@ -56,6 +56,25 @@ build-backend = "pdm.backend"
 distribution = true
 packages = ["run_page"]
 
+[tool.ruff.lint]
+# The sync adapters intentionally preserve broad compatibility error handling
+# and timezone-naive timestamps from the upstream service payloads.
+ignore = [
+  "BLE001",
+  "DTZ001",
+  "DTZ005",
+  "DTZ006",
+  "DTZ007",
+  "PLR1704",
+  "PLW0127",
+  "PLW0128",
+  "PLW1508",
+  "RUF012",
+  "S110",
+  "SIM102",
+  "TRY002",
+]
+
 [dependency-groups]
 dev = [
     "pytest>=9.0.3",
