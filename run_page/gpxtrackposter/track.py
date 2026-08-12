@@ -49,6 +49,7 @@ class Track:
         self.special = False
         self.average_heartrate = None
         self.elevation_gain = None
+        self.calories = None
         self.moving_dict = {}
         self.run_id = 0
         self.start_latlng = []
@@ -145,6 +146,7 @@ class Track:
             "elapsed_time": activity.elapsed_time,
             "average_speed": activity.average_speed or 0,
         }
+        self.calories = getattr(activity, "calories", None)
 
     def bbox(self):
         """Compute the smallest rectangle that contains the entire track (border box)."""
@@ -332,6 +334,19 @@ class Track:
             if gpx_extensions.get("distance") is None
             else float(gpx_extensions.get("distance"))
         )
+        calories = next(
+            (
+                gpx_extensions.get(key)
+                for key in ("calories", "Calories", "calorie")
+                if gpx_extensions.get(key) not in (None, "")
+            ),
+            None,
+        )
+        if calories is not None:
+            try:
+                self.calories = float(calories)
+            except (TypeError, ValueError):
+                pass
         self.average_heartrate = (
             self.average_heartrate
             if gpx_extensions.get("average_hr") is None
@@ -382,6 +397,19 @@ class Track:
             tz=datetime.UTC,
         )
         self.length = message["total_distance"]
+        self.calories = next(
+            (
+                message.get(key)
+                for key in (
+                    "total_calories",
+                    "totalCalories",
+                    "active_calories",
+                    "activeCalories",
+                )
+                if message.get(key) is not None
+            ),
+            None,
+        )
         self.average_heartrate = message.get("avg_heart_rate", None)
         if message["sport"].lower() == "running":
             self.type = "Run"
@@ -452,6 +480,10 @@ class Track:
             self.elevation_gain = (
                 self.elevation_gain if self.elevation_gain else 0
             ) + (other.elevation_gain if other.elevation_gain else 0)
+            if self.calories is not None and other.calories is not None:
+                self.calories += other.calories
+            elif self.calories is None:
+                self.calories = other.calories
         except Exception as e:
             print(
                 f"something wrong append this {self.end_time},in files {self.file_names!s}: {e}"
@@ -486,6 +518,7 @@ class Track:
                 int(self.average_heartrate) if self.average_heartrate else None
             ),
             "elevation_gain": (int(self.elevation_gain) if self.elevation_gain else 0),
+            "calories": self.calories,
             "map": run_map(self.polyline_str),
             "start_latlng": self.start_latlng,
         }

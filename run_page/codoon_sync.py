@@ -679,6 +679,11 @@ if __name__ == "__main__":
         action="store_true",
         help="from authorization token for download data",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="re-import all historical activities, including existing database records",
+    )
     options = parser.parse_args()
     if options.from_refresh_token:
         j = Codoon.from_auth_token(
@@ -693,7 +698,7 @@ if __name__ == "__main__":
         j.login_by_phone()
 
     generator = Generator(SQL_FILE)
-    old_tracks_ids = generator.get_old_tracks_ids()
+    old_tracks_ids = set() if options.force else generator.get_old_tracks_ids()
     tracks = j.get_old_tracks(old_tracks_ids, options.with_gpx, options.with_tcx)
 
     generator.sync_from_app(tracks)

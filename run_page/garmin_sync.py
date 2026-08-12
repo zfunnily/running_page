@@ -252,6 +252,7 @@ def add_summary_info(file_data, summary_infos, fields=None):
                 "end_time",
                 "moving_time",
                 "elapsed_time",
+                "calories",
             ]
         for field in fields:
             create_element(
@@ -369,6 +370,26 @@ def get_garmin_summary_infos(activity_summary, activity_id):
             else summary_dto.get("movingDuration")
         )
         garmin_summary_infos["elapsed_time"] = elapsed_second
+        # Garmin uses calories/kilocalories inconsistently between activity
+        # types and API versions. Keep the value in kcal, as the database and
+        # frontend expect kcal.
+        calorie_keys = (
+            "calories",
+            "totalCalories",
+            "activeCalories",
+            "totalKilocalories",
+            "activeKilocalories",
+        )
+        calorie_sources = (summary_dto, activity_summary)
+        garmin_summary_infos["calories"] = next(
+            (
+                source.get(key)
+                for source in calorie_sources
+                for key in calorie_keys
+                if source.get(key) is not None
+            ),
+            None,
+        )
         garmin_summary_infos["is_badminton"] = is_badminton
     except Exception as e:
         print(f"Failed to get activity summary {activity_id}: {e!s}")

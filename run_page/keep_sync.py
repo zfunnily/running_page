@@ -505,10 +505,10 @@ def download_keep_tcx(tcx_data, keep_id):
 
 
 def run_keep_sync(
-    email, password, keep_sports_data_api, with_gpx=False, with_tcx=False
+    email, password, keep_sports_data_api, with_gpx=False, with_tcx=False, force=False
 ):
     generator = Generator(SQL_FILE)
-    old_tracks_ids = generator.get_old_tracks_ids()
+    old_tracks_ids = set() if force else generator.get_old_tracks_ids()
     new_tracks = get_all_keep_tracks(
         email, password, old_tracks_ids, keep_sports_data_api, with_gpx, with_tcx
     )
@@ -542,6 +542,11 @@ if __name__ == "__main__":
         action="store_true",
         help="get all keep data to tcx and download",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="re-import all historical activities, including existing database records",
+    )
     options = parser.parse_args()
     for _tpye in options.sync_types:
         assert (
@@ -553,4 +558,5 @@ if __name__ == "__main__":
         options.sync_types,
         options.with_gpx,
         options.with_tcx,
+        options.force,
     )
