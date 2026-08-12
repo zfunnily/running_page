@@ -28,7 +28,7 @@ route.svg
 # Garmin GPX files are temporary sync inputs. Their processed file names are
 # persisted in imported.json and the parsed data is persisted in data.db.
 GPX_OUT/*.gpx
-FIX_OUT/*.fit
-FIX_OUT/*.zip
+FIT_OUT/*.fit
+FIT_OUT/*.zip
 
 .env
