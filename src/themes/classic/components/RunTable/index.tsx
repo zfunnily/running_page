@@ -60,8 +60,7 @@ const RunTable = ({
           multiplier;
       }
       if (key === 'Kcal') {
-        return (a, b) =>
-          ((a.calories ?? 0) - (b.calories ?? 0)) * multiplier;
+        return (a, b) => ((a.calories ?? 0) - (b.calories ?? 0)) * multiplier;
       }
       if (key === 'Time') {
         return (a, b) =>
