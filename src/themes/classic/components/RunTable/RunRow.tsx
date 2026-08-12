@@ -57,6 +57,7 @@ const RunRow = ({
       )}
       <td>{paceParts}</td>
       <td>{heartRate && heartRate.toFixed(0)}</td>
+      <td>{run.calories != null ? Math.round(run.calories) : '--'}</td>
       <td>{runTime}</td>
       <td className={styles.runDate}>{run.start_date_local}</td>
     </tr>

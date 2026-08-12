@@ -145,6 +145,7 @@ export function ActivityLog({
               <th className="pb-3 font-medium">{t('duration')}</th>
               <th className="pb-3 font-medium">{t('pace')}</th>
               <th className="pb-3 font-medium">{t('hr')}</th>
+              <th className="pb-3 font-medium">{t('calories')}</th>
             </tr>
           </thead>
           <tbody>
@@ -185,6 +186,12 @@ export function ActivityLog({
                 </td>
                 <td className="py-3 text-[var(--color-muted)]">
                   {a.average_heartrate ? Math.round(a.average_heartrate) : '--'}
+                </td>
+                <td className="py-3 font-mono text-[var(--color-muted)]">
+                  {a.calories != null ? Math.round(a.calories) : '--'}
+                  {a.calories != null && (
+                    <span className="ml-1 text-xs font-normal">kcal</span>
+                  )}
                 </td>
               </tr>
             ))}

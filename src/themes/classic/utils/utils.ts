@@ -31,6 +31,8 @@ export interface Activity {
   average_heartrate?: number | null;
   elevation_gain: number | null;
   average_speed: number;
+  /** Energy expenditure in kcal, when provided by the activity source. */
+  calories?: number | null;
   streak: number;
 }
 

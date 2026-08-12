@@ -44,6 +44,7 @@ ACTIVITY_KEYS = [
     "average_heartrate",
     "average_speed",
     "elevation_gain",
+    "calories",
 ]
 
 
@@ -64,6 +65,8 @@ class Activity(Base):
     average_heartrate = Column(Float)
     average_speed = Column(Float)
     elevation_gain = Column(Float)
+    # Energy expenditure in kcal (the source activity may not provide it).
+    calories = Column(Float)
     streak = None
 
     def to_dict(self):
@@ -142,6 +145,7 @@ def update_or_create_activity(session, run_activity):
                 average_heartrate=run_activity.average_heartrate,
                 average_speed=float(run_activity.average_speed),
                 elevation_gain=current_elevation_gain,
+                calories=getattr(run_activity, "calories", None),
                 summary_polyline=(
                     run_activity.map and run_activity.map.summary_polyline or ""
                 ),
@@ -158,6 +162,7 @@ def update_or_create_activity(session, run_activity):
             activity.average_heartrate = run_activity.average_heartrate
             activity.average_speed = float(run_activity.average_speed)
             activity.elevation_gain = current_elevation_gain
+            activity.calories = getattr(run_activity, "calories", None)
             activity.summary_polyline = (
                 run_activity.map and run_activity.map.summary_polyline or ""
             )
