@@ -6,14 +6,23 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
-import Map, {
-  Layer,
-  Source,
-  FullscreenControl,
-  NavigationControl,
-  MapRef,
-  MapInstance,
+import MapboxMap, {
+  Layer as MapboxLayer,
+  Source as MapboxSource,
+  FullscreenControl as MapboxFullscreenControl,
+  NavigationControl as MapboxNavigationControl,
+  MapRef as MapboxMapRef,
+  MapInstance as MapboxMapInstance,
 } from 'react-map-gl/mapbox';
+import MapLibreMap, {
+  Layer as MapLibreLayer,
+  Source as MapLibreSource,
+  FullscreenControl as MapLibreFullscreenControl,
+  NavigationControl as MapLibreNavigationControl,
+  MapRef as MapLibreMapRef,
+  MapInstance as MapLibreMapInstance,
+} from 'react-map-gl/maplibre';
+import * as maplibregl from 'maplibre-gl';
 import useActivities from '../../hooks/useActivities';
 import {
   IS_CHINESE,
@@ -46,6 +55,7 @@ import type { RPGeometry } from '../../static/run_countries';
 import './mapbox.css';
 import LightsControl from './LightsControl';
 import { useMapTheme, useThemeChangeCounter } from '../../hooks/useTheme';
+import { MAP_PROVIDER } from '../../../../core/config';
 
 const KEEP_WHEN_LIGHTS_OFF = ['runs2', 'runs2-indoor', 'animated-run'];
 
@@ -65,6 +75,21 @@ type MapStyleLayer = {
   layout?: Record<string, unknown>;
 };
 
+const ActiveMap = MAP_PROVIDER === 'maplibre' ? MapLibreMap : MapboxMap;
+const ActiveLayer = MAP_PROVIDER === 'maplibre' ? MapLibreLayer : MapboxLayer;
+const ActiveSource =
+  MAP_PROVIDER === 'maplibre' ? MapLibreSource : MapboxSource;
+const ActiveFullscreenControl =
+  MAP_PROVIDER === 'maplibre'
+    ? MapLibreFullscreenControl
+    : MapboxFullscreenControl;
+const ActiveNavigationControl =
+  MAP_PROVIDER === 'maplibre'
+    ? MapLibreNavigationControl
+    : MapboxNavigationControl;
+type ActiveMapRef = MapboxMapRef | MapLibreMapRef;
+type ActiveMapInstance = MapboxMapInstance | MapLibreMapInstance;
+
 const RunMap = ({
   title,
   viewState,
@@ -75,7 +100,7 @@ const RunMap = ({
   animationTrigger,
 }: IRunMapProps) => {
   const { countries, provinces } = useActivities();
-  const mapRef = useRef<MapRef>(null);
+  const mapRef = useRef<ActiveMapRef>(null);
   const [lights, setLights] = useState(PRIVACY_MODE ? false : LIGHTS_ON);
   const [mapGeoData, setMapGeoData] =
     useState<FeatureCollection<RPGeometry> | null>(null);
@@ -106,7 +131,7 @@ const RunMap = ({
    * @param nextLights - Whether lights are on or off
    */
   const switchLayerVisibility = useCallback(
-    (map: MapInstance, nextLights: boolean) => {
+    (map: ActiveMapInstance, nextLights: boolean) => {
       const styleJson = map.getStyle();
       styleJson.layers.forEach((it: { id: string }) => {
         if (!KEEP_WHEN_LIGHTS_OFF.includes(it.id)) {
@@ -249,10 +274,10 @@ const RunMap = ({
   }, [lights, switchLayerVisibility]);
 
   const mapRefCallback = useCallback(
-    (ref: MapRef) => {
+    (ref: ActiveMapRef) => {
       if (ref !== null) {
         const map = ref.getMap();
-        if (map && IS_CHINESE) {
+        if (map && IS_CHINESE && MAP_PROVIDER === 'mapbox') {
           map.addControl(new MapboxLanguage({ defaultLanguage: 'zh-Hans' }));
         }
         // all style resources have been downloaded
@@ -445,7 +470,7 @@ const RunMap = ({
   }, [isSingleRun, startRouteAnimation]);
 
   return (
-    <Map
+    <ActiveMap
       {...viewState}
       onMove={onMove}
       onClick={handleMapClick}
@@ -453,7 +478,8 @@ const RunMap = ({
       mapStyle={mapStyle}
       ref={mapRefCallback}
       cooperativeGestures={isTouchDevice()}
-      mapboxAccessToken={mapboxAccessToken}
+      {...(MAP_PROVIDER === 'maplibre' ? { mapLib: maplibregl } : {})}
+      {...(MAP_PROVIDER === 'mapbox' ? { mapboxAccessToken } : {})}
     >
       {mapError && (
         <div className={styles.mapErrorNotification}>
@@ -469,8 +495,8 @@ const RunMap = ({
         </div>
       )}
       <RunMapButtons changeYear={changeYear} thisYear={thisYear} />
-      <Source id="data" type="geojson" data={combinedGeoData}>
-        <Layer
+      <ActiveSource id="data" type="geojson" data={combinedGeoData}>
+        <ActiveLayer
           id="province"
           type="fill"
           paint={{
@@ -478,7 +504,7 @@ const RunMap = ({
           }}
           filter={filterProvinces}
         />
-        <Layer
+        <ActiveLayer
           id="countries"
           type="fill"
           paint={{
@@ -488,7 +514,7 @@ const RunMap = ({
           }}
           filter={filterCountries}
         />
-        <Layer
+        <ActiveLayer
           id="runs2"
           type="line"
           paint={{
@@ -505,7 +531,7 @@ const RunMap = ({
           }}
           filter={['!=', ['get', 'indoor'], true]}
         />
-        <Layer
+        <ActiveLayer
           id="runs2-indoor"
           type="line"
           paint={{
@@ -522,9 +548,9 @@ const RunMap = ({
           }}
           filter={['==', ['get', 'indoor'], true]}
         />
-      </Source>
+      </ActiveSource>
       {isSingleRun && animatedPoints.length > 0 && (
-        <Source
+        <ActiveSource
           id="animated-run"
           type="geojson"
           data={{
@@ -541,7 +567,7 @@ const RunMap = ({
             ],
           }}
         >
-          <Layer
+          <ActiveLayer
             id="animated-run"
             type="line"
             paint={{
@@ -555,7 +581,7 @@ const RunMap = ({
               'line-cap': 'round',
             }}
           />
-        </Source>
+        </ActiveSource>
       )}
       {isSingleRun && (
         <RunMarker
@@ -566,14 +592,14 @@ const RunMap = ({
         />
       )}
       <span className={styles.runTitle}>{title}</span>
-      <FullscreenControl style={fullscreenButton} />
+      <ActiveFullscreenControl style={fullscreenButton} />
       {!PRIVACY_MODE && <LightsControl setLights={setLights} lights={lights} />}
-      <NavigationControl
+      <ActiveNavigationControl
         showCompass={false}
         position={'bottom-right'}
         style={{ opacity: 0.3 }}
       />
-    </Map>
+    </ActiveMap>
   );
 };
 

@@ -26,9 +26,9 @@ const RunRow = ({
   setRunIndex,
 }: IRunRowProperties) => {
   const isBadminton = isBadmintonActivity(run);
-  const distance = isBadminton ? '0' : (run.distance / M_TO_DIST).toFixed(2);
+  const distance = isBadminton ? '--' : (run.distance / M_TO_DIST).toFixed(2);
   const paceParts = isBadminton
-    ? '0'
+    ? '--'
     : run.average_speed
       ? formatPace(run.average_speed)
       : '0';
@@ -56,7 +56,7 @@ const RunRow = ({
         <td>{((run.elevation_gain ?? 0) * M_TO_ELEV).toFixed(1)}</td>
       )}
       <td>{paceParts}</td>
-      <td>{heartRate && heartRate.toFixed(0)}</td>
+      <td>{heartRate != null ? heartRate.toFixed(0) : '--'}</td>
       <td>{run.calories != null ? Math.round(run.calories) : '--'}</td>
       <td>{runTime}</td>
       <td className={styles.runDate}>{run.start_date_local}</td>

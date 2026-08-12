@@ -162,7 +162,11 @@ def update_or_create_activity(session, run_activity):
             activity.average_heartrate = run_activity.average_heartrate
             activity.average_speed = float(run_activity.average_speed)
             activity.elevation_gain = current_elevation_gain
-            activity.calories = getattr(run_activity, "calories", None)
+            calories = getattr(run_activity, "calories", None)
+            # FIT is richer than GPX. A later GPX import must not erase a
+            # calorie value already obtained from FIT.
+            if calories is not None or activity.calories is None:
+                activity.calories = calories
             activity.summary_polyline = (
                 run_activity.map and run_activity.map.summary_polyline or ""
             )

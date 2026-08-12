@@ -84,6 +84,8 @@ class TrackLoader:
         """Load tracks data_dir and return as a List of tracks"""
         if activity_title_dict is None:
             activity_title_dict = {}
+        # imported.json tracks each physical representation independently.
+        # A synced GPX must not suppress the corresponding FIT file.
         file_names = [x for x in self._list_data_files(data_dir, file_suffix)]
         print(f"{file_suffix.upper()} files: {len(file_names)}")
 

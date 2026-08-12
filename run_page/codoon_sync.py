@@ -628,6 +628,16 @@ class Codoon:
             ),
             "average_speed": run_data["total_length"] / run_data["total_time"],
             "elevation_gain": elevation_gain,
+            # Codoon's activity detail response uses total_calories. Keep a few
+            # aliases for older API responses and normalize into the common field.
+            "calories": next(
+                (
+                    run_data.get(key)
+                    for key in ("total_calories", "calories", "calorie")
+                    if run_data.get(key) is not None
+                ),
+                None,
+            ),
             "location_country": location_country,
             "source": "Codoon",
         }

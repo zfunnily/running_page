@@ -219,6 +219,9 @@ def parse_raw_data_to_nametuple(
         ),
         "average_speed": run_data["distance"] / run_data["duration"],
         "elevation_gain": elevation_gain,
+        # Keep exposes energy expenditure in the activity detail response,
+        # but it is not included in the generated GPX track.
+        "calories": run_data.get("calorie"),
         "location_country": str(run_data.get("region", "")),
     }
     return namedtuple("x", d.keys())(*d.values())

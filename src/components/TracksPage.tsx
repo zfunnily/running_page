@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
 import * as polyline from '@mapbox/polyline';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
 import type { Activity } from '../types';
 import {
   getAvailableYears,
@@ -11,7 +9,13 @@ import {
   formatPace,
 } from '../hooks/useActivities';
 import { useLocale } from '../hooks/useLocale';
-import { MAPBOX_TOKEN } from '../config';
+import {
+  addRouteMapControls,
+  createRouteMap,
+  createRouteMapBounds,
+  getRouteMapStyle,
+  type RouteMapInstance,
+} from '../core/mapProvider';
 
 type SportType = 'Run';
 
@@ -100,14 +104,11 @@ function TrackMap({
   dark?: boolean;
 }) {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
+  const map = useRef<RouteMapInstance | null>(null);
   const mapReady = useRef(false);
   const activityRef = useRef(activity);
   const activitiesRef = useRef(activities);
-  const style =
-    dark !== false
-      ? 'mapbox://styles/mapbox/dark-v11'
-      : 'mapbox://styles/mapbox/light-v11';
+  const style = getRouteMapStyle(dark);
 
   // Keep the latest props in refs via an effect (not during render) so the
   // stable updateRoutes callback below can read them at event time. This is
@@ -150,7 +151,7 @@ function TrackMap({
           'line-opacity': 0.9,
         },
       });
-      const bounds = new mapboxgl.LngLatBounds();
+      const bounds = createRouteMapBounds();
       coords.forEach((c) => bounds.extend(c as [number, number]));
       m.fitBounds(bounds, { padding: 50, maxZoom: 14 });
       return;
@@ -200,7 +201,7 @@ function TrackMap({
     const lats = allCoords.map((c) => c[1]).sort((a, b) => a - b);
     const t = Math.floor(lngs.length * 0.1);
     m.fitBounds(
-      new mapboxgl.LngLatBounds(
+      createRouteMapBounds(
         [lngs[t], lats[t]],
         [lngs[lngs.length - 1 - t], lats[lats.length - 1 - t]]
       ),
@@ -215,15 +216,14 @@ function TrackMap({
       map.current.setStyle(style);
       return;
     }
-    mapboxgl.accessToken = MAPBOX_TOKEN;
     mapReady.current = false;
-    map.current = new mapboxgl.Map({
+    map.current = createRouteMap({
       container: mapContainer.current,
       style,
       center: [108, 35],
       zoom: 3,
     });
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    addRouteMapControls(map.current);
     map.current.on('style.load', () => {
       mapReady.current = true;
       updateRoutes.current();

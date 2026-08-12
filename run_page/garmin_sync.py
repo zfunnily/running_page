@@ -324,13 +324,15 @@ async def gather_with_concurrency(n, tasks):
     return await asyncio.gather(*(sem_task(task) for task in tasks))
 
 
-def get_downloaded_ids(folder):
+def get_downloaded_ids(folder, file_suffix=None):
     ids = {i.split(".")[0] for i in os.listdir(folder) if not i.startswith(".")}
-    ids.update(
-        str(file_name).rsplit(".", 1)[0]
-        for file_name in load_synced_file_list()
-        if str(file_name).rsplit(".", 1)[0].isdigit()
-    )
+    for file_name in load_synced_file_list():
+        file_name = str(file_name)
+        if file_suffix and not file_name.endswith(f".{file_suffix}"):
+            continue
+        file_id = file_name.rsplit(".", 1)[0]
+        if file_id.isdigit():
+            ids.add(file_id)
     return list(ids)
 
 
@@ -479,16 +481,20 @@ if __name__ == "__main__":
         dest="download_file_type",
         action="store_const",
         const="tcx",
-        default="gpx",
-        help="to download personal documents or ebook",
+        help="download TCX only (legacy single-format mode)",
     )
     parser.add_argument(
         "--fit",
         dest="download_file_type",
         action="store_const",
         const="fit",
-        default="gpx",
-        help="to download personal documents or ebook",
+        help="download FIT only (legacy single-format mode)",
+    )
+    parser.add_argument(
+        "--both",
+        dest="download_both",
+        action="store_true",
+        help="download both GPX and FIT (default)",
     )
     parser.add_argument(
         "--force",
@@ -498,50 +504,39 @@ if __name__ == "__main__":
     options = parser.parse_args()
     secret_string = options.secret_string
     auth_domain = "CN" if options.is_cn else "COM"  # Default to COM if not specified
-    file_type = options.download_file_type
     is_only_running = options.only_run
     if secret_string is None:
         print("Missing argument nor valid configuration file")
         sys.exit(1)
-    folder = FOLDER_DICT.get(file_type, "gpx")
-    # make gpx or tcx dir
-    if not os.path.exists(folder):
-        os.mkdir(folder)
-    downloaded_ids = get_downloaded_ids(folder)
-
-    if file_type == "fit":
-        gpx_folder = FOLDER_DICT["gpx"]
-        if not os.path.exists(gpx_folder):
-            os.mkdir(gpx_folder)
-        downloaded_gpx_ids = get_downloaded_ids(gpx_folder)
-        # merge downloaded_ids:list
-        downloaded_ids = list(set(downloaded_ids + downloaded_gpx_ids))
-
-    if options.force:
-        downloaded_ids = []
-
-    loop = asyncio.get_event_loop()
-    future = asyncio.ensure_future(
-        download_new_activities(
-            secret_string,
-            auth_domain,
-            downloaded_ids,
-            is_only_running,
-            folder,
-            file_type,
-        )
+    file_types = (
+        ["gpx", "fit"]
+        if options.download_both or options.download_file_type is None
+        else [options.download_file_type]
     )
-    loop.run_until_complete(future)
-    new_ids, id2title = future.result()
-    # fit may contain gpx(maybe upload by user)
-    if file_type == "fit":
+    loop = asyncio.get_event_loop()
+    for file_type in file_types:
+        folder = FOLDER_DICT[file_type]
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+        downloaded_ids = (
+            [] if options.force else get_downloaded_ids(folder, file_suffix=file_type)
+        )
+        future = asyncio.ensure_future(
+            download_new_activities(
+                secret_string,
+                auth_domain,
+                downloaded_ids,
+                is_only_running,
+                folder,
+                file_type,
+            )
+        )
+        loop.run_until_complete(future)
+        _, id2title = future.result()
         make_activities_file(
             SQL_FILE,
-            FOLDER_DICT["gpx"],
+            folder,
             JSON_FILE,
-            file_suffix="gpx",
+            file_suffix=file_type,
             activity_title_dict=id2title,
         )
-    make_activities_file(
-        SQL_FILE, folder, JSON_FILE, file_suffix=file_type, activity_title_dict=id2title
-    )

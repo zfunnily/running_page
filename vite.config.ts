@@ -94,6 +94,11 @@ export default defineConfig({
       '@assets': path.resolve(__dirname, './assets'),
     },
   },
+  // MapLibre ships a module worker that Vite's dependency optimizer can
+  // incorrectly cache as a missing optimized dependency during dev reloads.
+  optimizeDeps: {
+    exclude: ['maplibre-gl'],
+  },
   build: {
     manifest: true,
     modulePreload: false,
