@@ -22,7 +22,6 @@ import MapLibreMap, {
   MapRef as MapLibreMapRef,
   MapInstance as MapLibreMapInstance,
 } from 'react-map-gl/maplibre';
-import * as maplibregl from 'maplibre-gl';
 import useActivities from '../../hooks/useActivities';
 import {
   IS_CHINESE,
@@ -47,12 +46,12 @@ import {
   isTouchDevice,
 } from '../../utils/geoUtils';
 import { RouteAnimator } from '../../utils/routeAnimation';
-import RunMarker from './RunMarker';
 import RunMapButtons from './RunMapButtons';
 import styles from './style.module.css';
 import type { FeatureCollection } from 'geojson';
 import type { RPGeometry } from '../../static/run_countries';
 import './mapbox.css';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import LightsControl from './LightsControl';
 import { useMapTheme, useThemeChangeCounter } from '../../hooks/useTheme';
 import { MAP_PROVIDER } from '../../../../core/config';
@@ -394,16 +393,6 @@ const RunMap = ({
     []
   );
 
-  const fullscreenButton: React.CSSProperties = useMemo(
-    () => ({
-      position: 'absolute',
-      marginTop: '29.2px',
-      right: '0px',
-      opacity: 0.3,
-    }),
-    []
-  );
-
   useEffect(() => {
     const handleFullscreenChange = () => {
       if (mapRef.current) {
@@ -478,7 +467,6 @@ const RunMap = ({
       mapStyle={mapStyle}
       ref={mapRefCallback}
       cooperativeGestures={isTouchDevice()}
-      {...(MAP_PROVIDER === 'maplibre' ? { mapLib: maplibregl } : {})}
       {...(MAP_PROVIDER === 'mapbox' ? { mapboxAccessToken } : {})}
     >
       {mapError && (
@@ -583,21 +571,12 @@ const RunMap = ({
           />
         </ActiveSource>
       )}
-      {isSingleRun && (
-        <RunMarker
-          startLat={startLat}
-          startLon={startLon}
-          endLat={endLat}
-          endLon={endLon}
-        />
-      )}
       <span className={styles.runTitle}>{title}</span>
-      <ActiveFullscreenControl style={fullscreenButton} />
+      <ActiveFullscreenControl />
       {!PRIVACY_MODE && <LightsControl setLights={setLights} lights={lights} />}
       <ActiveNavigationControl
         showCompass={false}
         position={'bottom-right'}
-        style={{ opacity: 0.3 }}
       />
     </ActiveMap>
   );

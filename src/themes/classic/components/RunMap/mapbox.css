@@ -673,3 +673,109 @@ a.mapboxgl-ctrl-logo.mapboxgl-compact {
   .mapboxgl-canvas {
   touch-action: pan-x pan-y;
 }
+
+/* MapLibre uses the same control layout as Mapbox GL, but with its own
+   class prefix. Keep the legacy rules above for the other map provider and
+   mirror the layout rules for the active MapLibre map. */
+.maplibregl-map {
+  font:
+    12px/20px Helvetica Neue,
+    Arial,
+    Helvetica,
+    sans-serif;
+  overflow: hidden;
+  position: relative;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+.maplibregl-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.maplibregl-ctrl-bottom-left,
+.maplibregl-ctrl-bottom-right,
+.maplibregl-ctrl-top-left,
+.maplibregl-ctrl-top-right {
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.maplibregl-ctrl-top-left {
+  top: 0;
+  left: 0;
+}
+
+.maplibregl-ctrl-top-right {
+  top: 0;
+  right: 0;
+}
+
+.maplibregl-ctrl-bottom-left {
+  bottom: 0;
+  left: 0;
+}
+
+.maplibregl-ctrl-bottom-right {
+  right: 0;
+  bottom: 0;
+}
+
+.maplibregl-ctrl {
+  clear: both;
+  pointer-events: auto;
+  transform: translate(0);
+}
+
+.maplibregl-ctrl-top-left .maplibregl-ctrl {
+  margin: 10px 0 0 10px;
+  float: left;
+}
+
+.maplibregl-ctrl-top-right .maplibregl-ctrl {
+  margin: 10px 10px 0 0;
+  float: right;
+}
+
+.maplibregl-ctrl-bottom-left .maplibregl-ctrl {
+  margin: 0 0 10px 10px;
+  float: left;
+}
+
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl {
+  margin: 0 10px 10px 0;
+  float: right;
+}
+
+.maplibregl-ctrl-group {
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.maplibregl-ctrl-group button {
+  width: 29px;
+  height: 29px;
+  display: block;
+  padding: 0;
+  outline: none;
+  border: 0;
+  box-sizing: border-box;
+  background-color: transparent;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.maplibregl-ctrl-group button + button {
+  border-top: 1px solid #ddd;
+}
+
+.maplibregl-ctrl button .maplibregl-ctrl-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
