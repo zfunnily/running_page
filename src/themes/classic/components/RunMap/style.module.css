@@ -9,16 +9,22 @@
 .buttons {
   font-family: var(--font-mono);
   position: absolute;
-  top: 0px;
+  top: 10px;
   left: 10px;
-  margin: 0 auto;
-  padding-right: 70px;
+  z-index: 3;
+  display: flex;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0.2rem 0.35rem;
+  border-radius: 4px;
+  background: rgb(0 0 0 / 45%);
+  pointer-events: auto;
 }
 
 @media only screen and (max-width: 768px) {
   .buttons {
-    padding-right: 10px;
     flex-wrap: wrap;
+    max-width: calc(100% - 70px);
   }
 }
 
@@ -26,8 +32,7 @@
   display: inline-block;
   position: relative;
   cursor: pointer;
-  padding: 0.5rem 0.4rem;
-  margin-top: 0.1rem;
+  padding: 0.25rem 0.4rem;
   font-size: 1rem;
   text-align: center;
   color: var(--color-run-date);
