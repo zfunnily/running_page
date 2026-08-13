@@ -574,10 +574,7 @@ const RunMap = ({
       <span className={styles.runTitle}>{title}</span>
       <ActiveFullscreenControl />
       {!PRIVACY_MODE && <LightsControl setLights={setLights} lights={lights} />}
-      <ActiveNavigationControl
-        showCompass={false}
-        position={'bottom-right'}
-      />
+      <ActiveNavigationControl showCompass={false} position={'bottom-right'} />
     </ActiveMap>
   );
 };
