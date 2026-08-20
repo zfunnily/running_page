@@ -504,8 +504,14 @@ class Track:
         }
 
     def to_namedtuple(self, run_from="gpx"):
+        source_id = os.path.splitext(self.file_names[0])[0]
+        # Garmin sometimes extracts FIT archives as <activity>_ACTIVITY.fit.
+        # Both formats must resolve to the same upstream activity ID.
+        if source_id.endswith("_ACTIVITY"):
+            source_id = source_id.removesuffix("_ACTIVITY")
         d = {
             "id": self.run_id,
+            "source_id": source_id,
             "name": (self.track_name if self.track_name else ""),  # maybe change later
             "type": self.type,
             "subtype": (self.subtype if self.subtype else ""),

@@ -52,6 +52,9 @@ class Activity(Base):
     __tablename__ = "activities"
 
     run_id = Column(Integer, primary_key=True)
+    # The upstream activity ID encoded in a downloaded filename.  It is stable
+    # across Garmin's GPX and FIT exports, unlike their record timestamps.
+    source_id = Column(String, index=True)
     name = Column(String)
     distance = Column(Float)
     moving_time = Column(Interval)
@@ -90,6 +93,9 @@ def update_or_create_activity(session, run_activity):
         activity = (
             session.query(Activity).filter_by(run_id=int(run_activity.id)).first()
         )
+        source_id = getattr(run_activity, "source_id", None)
+        if not activity and source_id:
+            activity = session.query(Activity).filter_by(source_id=source_id).first()
 
         current_elevation_gain = 0.0  # default value
 
@@ -133,6 +139,7 @@ def update_or_create_activity(session, run_activity):
 
             activity = Activity(
                 run_id=run_activity.id,
+                source_id=source_id,
                 name=run_activity.name,
                 distance=run_activity.distance,
                 moving_time=run_activity.moving_time,
@@ -153,6 +160,8 @@ def update_or_create_activity(session, run_activity):
             session.add(activity)
             created = True
         else:
+            if source_id:
+                activity.source_id = source_id
             activity.name = run_activity.name
             activity.distance = float(run_activity.distance)
             activity.moving_time = run_activity.moving_time
