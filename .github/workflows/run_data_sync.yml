@@ -9,7 +9,8 @@ on:
         default: false
         type: boolean
   schedule:
-    - cron: '0 0 * * *'
+    # GitHub Actions cron uses UTC: 02:00 UTC = 10:00 Asia/Shanghai.
+    - cron: '0 2 * * *'
   push:
     branches:
       - master
